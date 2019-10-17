@@ -44,8 +44,16 @@
 (defvar elixir-test-mode-map (make-sparse-keymap)
   "An empty keymap primarily for setting the prefix.")
 
-(defvar elixir-test-last-test nil
-  "The last test run with an elixir-test-* function.")
+(defvar elixir-test-last-test-table (make-hash-table :test 'equal)
+  "A hash-table mapping projects to the last test run with an elixir-test-* function inside them.")
+
+(defun elixir-test-get-last-test (dir)
+  "Get the last test run with elixir-test in DIR."
+  (gethash dir elixir-test-last-test-table))
+
+(defun elixir-test-set-last-test (dir cmd)
+  "Set CMD as the last test run with elixir-test in DIR."
+  (puthash dir cmd elixir-test-last-test-table))
 
 (defun elixir-test-find-project-root ()
   "Traverse upwards from current buffer until a mix.exs file is discovered."
@@ -53,53 +61,54 @@
 
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
-
-(defun elixir-test-run-test (location)
-  "Run the test specified by LOCATION.
-
-LOCATION can be either a file and line, just a file, or a empty
-string, specifying to run either a single test, a file, or the
-whole suite, respectively."
-  (let ((default-directory (elixir-test-find-project-root))
-	(test-cmd
-	 (cond
-	  ((equal 'last location) elixir-test-last-test)
-	  (current-prefix-arg (elixir-test-format-command
-			       (list elixir-test-base-cmd
-				     (read-from-minibuffer "flags: ")
-				     location)))
-	  (t (elixir-test-format-command (list elixir-test-base-cmd location))))))
-    (setq elixir-test-last-test test-cmd)
-    (compile test-cmd)))
   (string-join (remq nil cmd) " "))
+
+(defun elixir-test-run-test (base-cmd args location)
+  "Run the test specified by BASE-CMD with ARGS and LOCATION.
+
+LOCATION can be either a filename and line, just a filename, or
+nil, specifying to run either a single test, a file, or the whole
+suite, respectively."
+  (let* ((default-directory (elixir-test-find-project-root))
+	 (base-cmd (or base-cmd elixir-test-base-cmd))
+	 (args (if current-prefix-arg
+		   (read-from-minibuffer "Args: " args nil nil 'elixir-test-args)
+		 args))
+	 (location (when location (file-relative-name location)))
+	 (test-cmd (list base-cmd args location)))
+    (elixir-test-set-last-test default-directory test-cmd)
+    (compile (elixir-test-format-command test-cmd))))
 
 (defun elixir-test-at-point ()
   "Run the test nearest to the point."
   (interactive)
   (let* ((line (line-number-at-pos (point)))
 	 (file-and-line (format "%s:%s" buffer-file-name line)))
-    (elixir-test-run-test file-and-line)))
+    (elixir-test-run-test nil nil file-and-line)))
 
 (defun elixir-test-file ()
   "Test the current file."
   (interactive)
-  (elixir-test-run-test buffer-file-name))
+  (elixir-test-run-test nil nil buffer-file-name))
 
 (defun elixir-test-directory ()
   "Test all files in the current directory."
   (interactive)
-  (elixir-test-run-test default-directory))
+  (elixir-test-run-test nil nil default-directory))
 
 (defun elixir-test-all ()
   "Test all files in the current test suite."
   (interactive)
-  (elixir-test-run-test ""))
+  (elixir-test-run-test nil nil nil))
 
 (defun elixir-test-rerun-last ()
   "Rerun whatever test was run last."
   (interactive)
-  (if elixir-test-last-test (elixir-test-run-test 'last)
-    (message "No test has been run yet!")))
+  (let* ((root (elixir-test-find-project-root))
+	 (last-cmd (elixir-test-get-last-test root)))
+    (if last-cmd
+	(apply 'elixir-test-run-test last-cmd)
+      (message "No test has been run in the project yet!"))))
 
 ;;;###autoload
 (define-minor-mode elixir-test-mode
