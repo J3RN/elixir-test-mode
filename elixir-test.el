@@ -53,7 +53,6 @@
 
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
-  (string-join cmd " "))
 
 (defun elixir-test-run-test (location)
   "Run the test specified by LOCATION.
@@ -72,6 +71,7 @@ whole suite, respectively."
 	  (t (elixir-test-format-command (list elixir-test-base-cmd location))))))
     (setq elixir-test-last-test test-cmd)
     (compile test-cmd)))
+  (string-join (remq nil cmd) " "))
 
 (defun elixir-test-at-point ()
   "Run the test nearest to the point."
