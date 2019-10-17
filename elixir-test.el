@@ -24,6 +24,12 @@
 
 ;;; Code:
 
+(defcustom elixir-test-base-cmd "mix test"
+  "The base command to be used when running Elixir tests."
+  :type 'string
+  :risky t
+  :group 'elixir-test)
+
 (defvar elixir-test-command-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "s") #'elixir-test-at-point)
@@ -45,6 +51,10 @@
   "Traverse upwards from current buffer until a mix.exs file is discovered."
   (locate-dominating-file buffer-file-name "mix.exs"))
 
+(defun elixir-test-format-command (cmd)
+  "Formats CMD to be a command ready for `compile'."
+  (string-join cmd " "))
+
 (defun elixir-test-run-test (location)
   "Run the test specified by LOCATION.
 
@@ -55,8 +65,11 @@ whole suite, respectively."
 	(test-cmd
 	 (cond
 	  ((equal 'last location) elixir-test-last-test)
-	  (current-prefix-arg (format "mix test %s %s" (read-from-minibuffer "flags: ") location))
-	  (t (format "mix test %s" location)))))
+	  (current-prefix-arg (elixir-test-format-command
+			       (list elixir-test-base-cmd
+				     (read-from-minibuffer "flags: ")
+				     location)))
+	  (t (elixir-test-format-command (list elixir-test-base-cmd location))))))
     (setq elixir-test-last-test test-cmd)
     (compile test-cmd)))
 
