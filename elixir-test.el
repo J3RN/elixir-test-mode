@@ -49,7 +49,7 @@
 
 (defun elixir-test-find-project-root ()
   "Traverse upwards from current buffer until a mix.exs file is discovered."
-  (locate-dominating-file buffer-file-name "mix.exs"))
+  (locate-dominating-file default-directory "mix.exs"))
 
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
