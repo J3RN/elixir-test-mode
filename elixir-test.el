@@ -61,21 +61,24 @@
 
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
-  (string-join (remq nil cmd) " "))
+  (string-join (delete nil cmd) " "))
 
-(defun elixir-test-run-test (base-cmd args location)
-  "Run the test specified by BASE-CMD with ARGS and LOCATION.
+(defun elixir-test-run-test (cmd)
+  "Run the test specified by CMD.
 
-LOCATION can be either a filename and line, just a filename, or
-nil, specifying to run either a single test, a file, or the whole
-suite, respectively."
+CMD is a vector in the format `[base-cmd args location]' where
+BASE-CMD is the base testing command (e.g. `mix test'), ARGS is a
+string containing additional arguments to be given to BASE-CMD,
+and LOCATION is either a file name and line number, just a file
+name, or nil, conveying the intent to run a single test, a test
+file, or the whole test suite, respectively."
   (let* ((default-directory (elixir-test-find-project-root))
-	 (base-cmd (or base-cmd elixir-test-base-cmd))
+	 (base-cmd (or (elt cmd 0) elixir-test-base-cmd))
 	 (args (if current-prefix-arg
-		   (read-from-minibuffer "Args: " args nil nil 'elixir-test-args)
-		 args))
-	 (location (when location (file-relative-name location)))
-	 (test-cmd (list base-cmd args location)))
+		   (read-from-minibuffer "Args: " (elt cmd 1) nil nil 'elixir-test-args)
+		 (elt cmd 1)))
+	 (location (when (elt cmd 2) (file-relative-name (elt cmd 2))))
+	 (test-cmd (vector base-cmd args location)))
     (elixir-test-set-last-test default-directory test-cmd)
     (compile (elixir-test-format-command test-cmd))))
 
@@ -84,22 +87,22 @@ suite, respectively."
   (interactive)
   (let* ((line (line-number-at-pos (point)))
 	 (file-and-line (format "%s:%s" buffer-file-name line)))
-    (elixir-test-run-test nil nil file-and-line)))
+    (elixir-test-run-test (vector nil nil file-and-line))))
 
 (defun elixir-test-file ()
   "Test the current file."
   (interactive)
-  (elixir-test-run-test nil nil buffer-file-name))
+  (elixir-test-run-test (vector nil nil buffer-file-name)))
 
 (defun elixir-test-directory ()
   "Test all files in the current directory."
   (interactive)
-  (elixir-test-run-test nil nil default-directory))
+  (elixir-test-run-test (vector nil nil default-directory)))
 
 (defun elixir-test-all ()
   "Test all files in the current test suite."
   (interactive)
-  (elixir-test-run-test nil nil nil))
+  (elixir-test-run-test (vector nil nil nil)))
 
 (defun elixir-test-rerun-last ()
   "Rerun whatever test was run last."
@@ -107,7 +110,7 @@ suite, respectively."
   (let* ((root (elixir-test-find-project-root))
 	 (last-cmd (elixir-test-get-last-test root)))
     (if last-cmd
-	(apply 'elixir-test-run-test last-cmd)
+	(elixir-test-run-test last-cmd)
       (message "No test has been run in the project yet!"))))
 
 ;;;###autoload
