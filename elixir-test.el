@@ -37,6 +37,7 @@
     (define-key map (kbd "d") #'elixir-test-directory)
     (define-key map (kbd "a") #'elixir-test-all)
     (define-key map (kbd "l") #'elixir-test-rerun-last)
+    (define-key map (kbd "u") #'elixir-test-up)
     map)
   "Keymap to be invoked post-prefix.")
 (fset 'elixir-test-command-map elixir-test-command-map)
@@ -111,6 +112,22 @@ file, or the whole test suite, respectively."
 	 (last-cmd (elixir-test-get-last-test root)))
     (if last-cmd
 	(elixir-test-run-test last-cmd)
+      (message "No test has been run in the project yet!"))))
+
+(defun elixir-test--up-directory (dir)
+  "Return the directory above DIR."
+  (file-name-directory (directory-file-name dir)))
+
+(defun elixir-test-up ()
+  "Rerun the last test command, but in the next highest directory from the last run."
+  (interactive)
+  (let* ((root (elixir-test-find-project-root))
+	 (last-cmd (elixir-test-get-last-test root)))
+    (if last-cmd
+	(seq-let [base-cmd args last-file] last-cmd
+	  (let ((new-file (when last-file
+			    (elixir-test--up-directory last-file))))
+	    (elixir-test-run-test (vector base-cmd args new-file))))
       (message "No test has been run in the project yet!"))))
 
 ;;;###autoload
