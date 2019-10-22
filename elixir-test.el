@@ -30,6 +30,13 @@
   :risky t
   :group 'elixir-test)
 
+(defcustom elixir-test-prefer-umbrella t
+  "Whether or not to prefer running tests from an umbrella, if it exists.
+
+If there is no umbrella project, the value of this variable is irrelevant."
+  :type 'boolean
+  :group 'elixir-test)
+
 (defvar elixir-test-command-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "s") #'elixir-test-at-point)
@@ -56,9 +63,18 @@
   "Set CMD as the last test run with elixir-test in DIR."
   (puthash dir cmd elixir-test-last-test-table))
 
+(defun elixir-test-find-umbrella-root (start-dir)
+  "Traverse upwards from START-DIR until highest mix.exs file is discovered."
+  (when-let ((project-dir (locate-dominating-file start-dir "mix.exs")))
+    (or (elixir-test-find-umbrella-root (elixir-test--up-directory project-dir))
+	project-dir)))
+
 (defun elixir-test-find-project-root ()
   "Traverse upwards from current buffer until a mix.exs file is discovered."
-  (locate-dominating-file default-directory "mix.exs"))
+  (interactive)
+  (if elixir-test-prefer-umbrella
+      (elixir-test-find-umbrella-root default-directory)
+    (locate-dominating-file default-directory "mix.exs")))
 
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
