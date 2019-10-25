@@ -24,6 +24,11 @@
 
 ;;; Code:
 
+(defgroup elixir-test nil
+  "Elixir testing functionality."
+  :prefix "elixir-test-"
+  :group 'languages)
+
 (defcustom elixir-test-base-cmd "mix test"
   "The base command to be used when running Elixir tests."
   :type 'string
