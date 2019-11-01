@@ -81,6 +81,14 @@ If there is no umbrella project, the value of this variable is irrelevant."
       (elixir-test-find-umbrella-root default-directory)
     (locate-dominating-file default-directory "mix.exs")))
 
+(defun elixir-test--project-name (root-directory)
+  "Return the project name for the project located at ROOT-DIRECTORY."
+  (file-name-base (directory-file-name root-directory)))
+
+(defun elixir-test-output--buffer-name (mode)
+  "Create the name for the elixir-test-output buffer."
+  (concat "*" mode " " (elixir-test--project-name default-directory) "*"))
+
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
   (string-join (delete nil cmd) " "))
@@ -104,7 +112,9 @@ file, or the whole test suite, respectively."
 		     location))
 	 (test-cmd (vector base-cmd args location)))
     (elixir-test-set-last-test default-directory test-cmd)
-    (compile (elixir-test-format-command test-cmd))))
+    (compilation-start (elixir-test-format-command test-cmd)
+		       'elixir-test-output-mode
+		       'elixir-test-output--buffer-name)))
 
 (defun elixir-test-at-point ()
   "Run the test nearest to the point."
@@ -159,6 +169,8 @@ file, or the whole test suite, respectively."
 
 \\{elixir-test-mode-map}"
   :keymap elixir-test-mode-map)
+
+(define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test")
 
 ;;;###autoload
 (add-hook 'elixir-mode-hook 'elixir-test-mode)
