@@ -85,6 +85,10 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "Return the project name for the project located at ROOT-DIRECTORY."
   (file-name-base (directory-file-name root-directory)))
 
+(defun elixir-test-output--buffer-name (mode)
+  "Create the name for the elixir-test-output buffer."
+  (concat "*" mode " " (elixir-test--project-name default-directory) "*"))
+
 (defun elixir-test-format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
   (string-join (delete nil cmd) " "))
@@ -110,7 +114,7 @@ file, or the whole test suite, respectively."
     (elixir-test-set-last-test default-directory test-cmd)
     (compilation-start (elixir-test-format-command test-cmd)
 		       'elixir-test-output-mode
-		       (lambda (mode) (concat "*" mode " " (elixir-test--project-name default-directory) "*")))))
+		       'elixir-test-output--buffer-name)))
 
 (defun elixir-test-at-point ()
   "Run the test nearest to the point."
