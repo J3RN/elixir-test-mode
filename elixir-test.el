@@ -50,6 +50,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
     (define-key map (kbd "a") #'elixir-test-all)
     (define-key map (kbd "l") #'elixir-test-rerun-last)
     (define-key map (kbd "u") #'elixir-test-up)
+    (define-key map (kbd ".") #'elixir-test-failed)
     map)
   "Keymap to be invoked post-prefix.")
 (fset 'elixir-test-command-map elixir-test-command-map)
@@ -162,6 +163,11 @@ file, or the whole test suite, respectively."
 			    (elixir-test--up-directory last-file))))
 	    (elixir-test-run-test (vector base-cmd args new-file))))
       (message "No test has been run in the project yet!"))))
+
+(defun elixir-test-failed ()
+  "Run only the tests that failed in the last run."
+  (interactive)
+  (elixir-test-run-test (vector elixir-test-base-cmd "--failed" nil)))
 
 ;;;###autoload
 (define-minor-mode elixir-test-mode
