@@ -108,9 +108,12 @@ file, or the whole test suite, respectively."
 	 (args (if current-prefix-arg
 		   (read-from-minibuffer "Args: " (elt cmd 1) nil nil 'elixir-test-args)
 		 (elt cmd 1)))
-	 (location (when (elt cmd 2) (file-relative-name (elt cmd 2))))
-	 (location (if current-prefix-arg (read-file-name "Path: " (or location default-directory))
-		     location))
+	 (location (elt cmd 2))
+	 (location (when location
+		     (file-relative-name
+		      (if current-prefix-arg
+			  (read-file-name "Path: " location)
+			location))))
 	 (test-cmd (vector base-cmd args location)))
     (elixir-test-set-last-test default-directory test-cmd)
     (compilation-start (elixir-test-format-command test-cmd)
