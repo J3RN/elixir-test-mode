@@ -188,6 +188,8 @@ file, or the whole test suite, respectively."
 
 ;;;###autoload
 (add-hook 'elixir-mode-hook 'elixir-test-mode)
+(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ :]+\\):\\([0-9]+\\)" 1 2))
+(add-to-list 'compilation-error-regexp-alist 'elixir)
 
 (provide 'elixir-test)
 ;;; elixir-test.el ends here
