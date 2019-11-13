@@ -176,7 +176,12 @@ file, or the whole test suite, respectively."
 \\{elixir-test-mode-map}"
   :keymap elixir-test-mode-map)
 
+(defvar elixir-test-output-mode-map elixir-test-command-map
+  "A keymap for the elixir-test-output buffer.")
+
 (define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test")
+
+(derived-mode-set-keymap 'elixir-test-output-mode)
 
 ;;;###autoload
 (add-hook 'elixir-mode-hook 'elixir-test-mode)
