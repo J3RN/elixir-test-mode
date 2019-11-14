@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+
+;;; Customization
 (defgroup elixir-test nil
   "Elixir testing functionality."
   :prefix "elixir-test-"
@@ -42,6 +44,8 @@ If there is no umbrella project, the value of this variable is irrelevant."
   :type 'boolean
   :group 'elixir-test)
 
+
+;;; elixir-test-mode definition and configuration
 (defvar elixir-test-command-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "s") #'elixir-test-at-point)
@@ -61,25 +65,49 @@ If there is no umbrella project, the value of this variable is irrelevant."
 (defvar elixir-test-last-test-table (make-hash-table :test 'equal)
   "A hash-table mapping projects to the last test run with an elixir-test-* function inside them.")
 
-(defun elixir-test-get-last-test (dir)
+;;;###autoload
+(define-minor-mode elixir-test-mode
+  "Minor mode to aid in testing Elixir code.
+
+\\{elixir-test-mode-map}"
+  :keymap elixir-test-mode-map)
+
+;;;###autoload
+(add-hook 'elixir-mode-hook 'elixir-test-mode)
+
+
+;;; elixir-test-output-mode definition and configuration
+;;;###autoload
+(defvar elixir-test-output-mode-map elixir-test-command-map
+  "A keymap for the elixir-test-output buffer.")
+
+(define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test")
+
+(derived-mode-set-keymap 'elixir-test-output-mode)
+
+(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([a-z_/\\.]+\\):\\([0-9]+\\)" 1 2))
+(add-to-list 'compilation-error-regexp-alist 'elixir)
+
+
+;;; Private functions
+(defun elixir-test--get-last-test (dir)
   "Get the last test run with elixir-test in DIR."
   (gethash dir elixir-test-last-test-table))
 
-(defun elixir-test-set-last-test (dir cmd)
+(defun elixir-test--set-last-test (dir cmd)
   "Set CMD as the last test run with elixir-test in DIR."
   (puthash dir cmd elixir-test-last-test-table))
 
-(defun elixir-test-find-umbrella-root (start-dir)
+(defun elixir-test--find-umbrella-root (start-dir)
   "Traverse upwards from START-DIR until highest mix.exs file is discovered."
   (when-let ((project-dir (locate-dominating-file start-dir "mix.exs")))
-    (or (elixir-test-find-umbrella-root (elixir-test--up-directory project-dir))
+    (or (elixir-test--find-umbrella-root (elixir-test--up-directory project-dir))
 	project-dir)))
 
-(defun elixir-test-find-project-root ()
+(defun elixir-test--find-project-root ()
   "Traverse upwards from current buffer until a mix.exs file is discovered."
-  (interactive)
   (if elixir-test-prefer-umbrella
-      (elixir-test-find-umbrella-root default-directory)
+      (elixir-test--find-umbrella-root default-directory)
     (locate-dominating-file default-directory "mix.exs")))
 
 (defun elixir-test--project-name (root-directory)
@@ -90,11 +118,15 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "Create the name for the elixir-test-output buffer."
   (concat "*" mode " " (elixir-test--project-name default-directory) "*"))
 
-(defun elixir-test-format-command (cmd)
+(defun elixir-test--format-command (cmd)
   "Formats CMD to be a command ready for `compile'."
   (string-join (delete nil cmd) " "))
 
-(defun elixir-test-run-test (cmd)
+(defun elixir-test--up-directory (dir)
+  "Return the directory above DIR."
+  (file-name-directory (directory-file-name dir)))
+
+(defun elixir-test--run-test (cmd)
   "Run the test specified by CMD.
 
 CMD is a vector in the format `[base-cmd args location]' where
@@ -103,7 +135,7 @@ string containing additional arguments to be given to BASE-CMD,
 and LOCATION is either a file name and line number, just a file
 name, or nil, conveying the intent to run a single test, a test
 file, or the whole test suite, respectively."
-  (let* ((default-directory (elixir-test-find-project-root))
+  (let* ((default-directory (elixir-test--find-project-root))
 	 (base-cmd (or (elt cmd 0) elixir-test-base-cmd))
 	 (args (if current-prefix-arg
 		   (read-from-minibuffer "Args: " (elt cmd 1) nil nil 'elixir-test-args)
@@ -115,81 +147,60 @@ file, or the whole test suite, respectively."
 			  (read-file-name "Path: " location)
 			location))))
 	 (test-cmd (vector base-cmd args location)))
-    (elixir-test-set-last-test default-directory test-cmd)
-    (compilation-start (elixir-test-format-command test-cmd)
+    (elixir-test--set-last-test default-directory test-cmd)
+    (compilation-start (elixir-test--format-command test-cmd)
 		       'elixir-test-output-mode
 		       'elixir-test-output--buffer-name)))
 
+
+;;; Public functions
 (defun elixir-test-at-point ()
   "Run the test nearest to the point."
   (interactive)
   (let* ((line (line-number-at-pos (point)))
 	 (file-and-line (format "%s:%s" buffer-file-name line)))
-    (elixir-test-run-test (vector nil nil file-and-line))))
+    (elixir-test--run-test (vector nil nil file-and-line))))
 
 (defun elixir-test-file ()
   "Test the current file."
   (interactive)
-  (elixir-test-run-test (vector nil nil buffer-file-name)))
+  (elixir-test--run-test (vector nil nil buffer-file-name)))
 
 (defun elixir-test-directory ()
   "Test all files in the current directory."
   (interactive)
-  (elixir-test-run-test (vector nil nil default-directory)))
+  (elixir-test--run-test (vector nil nil default-directory)))
 
 (defun elixir-test-all ()
   "Test all files in the current test suite."
   (interactive)
-  (elixir-test-run-test (vector nil nil nil)))
+  (elixir-test--run-test (vector nil nil nil)))
 
 (defun elixir-test-rerun-last ()
   "Rerun whatever test was run last."
   (interactive)
-  (let* ((root (elixir-test-find-project-root))
-	 (last-cmd (elixir-test-get-last-test root)))
+  (let* ((root (elixir-test--find-project-root))
+	 (last-cmd (elixir-test--get-last-test root)))
     (if last-cmd
-	(elixir-test-run-test last-cmd)
+	(elixir-test--run-test last-cmd)
       (message "No test has been run in the project yet!"))))
-
-(defun elixir-test--up-directory (dir)
-  "Return the directory above DIR."
-  (file-name-directory (directory-file-name dir)))
 
 (defun elixir-test-up ()
   "Rerun the last test command, but in the next highest directory from the last run."
   (interactive)
-  (let* ((root (elixir-test-find-project-root))
-	 (last-cmd (elixir-test-get-last-test root)))
+  (let* ((root (elixir-test--find-project-root))
+	 (last-cmd (elixir-test--get-last-test root)))
     (if last-cmd
 	(seq-let [base-cmd args last-file] last-cmd
 	  (let ((new-file (when last-file
 			    (elixir-test--up-directory last-file))))
-	    (elixir-test-run-test (vector base-cmd args new-file))))
+	    (elixir-test--run-test (vector base-cmd args new-file))))
       (message "No test has been run in the project yet!"))))
 
 (defun elixir-test-failed ()
   "Run only the tests that failed in the last run."
   (interactive)
-  (elixir-test-run-test (vector elixir-test-base-cmd "--failed" nil)))
-
-;;;###autoload
-(define-minor-mode elixir-test-mode
-  "Minor mode to aid in testing Elixir code.
-
-\\{elixir-test-mode-map}"
-  :keymap elixir-test-mode-map)
-
-(defvar elixir-test-output-mode-map elixir-test-command-map
-  "A keymap for the elixir-test-output buffer.")
-
-(define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test")
-
-(derived-mode-set-keymap 'elixir-test-output-mode)
-
-;;;###autoload
-(add-hook 'elixir-mode-hook 'elixir-test-mode)
-(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ :]+\\):\\([0-9]+\\)" 1 2))
-(add-to-list 'compilation-error-regexp-alist 'elixir)
+  (elixir-test--run-test (vector elixir-test-base-cmd "--failed" nil)))
 
 (provide 'elixir-test)
 ;;; elixir-test.el ends here
