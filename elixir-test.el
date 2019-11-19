@@ -85,7 +85,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 (derived-mode-set-keymap 'elixir-test-output-mode)
 
-(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([a-z_/\\.]+\\):\\([0-9]+\\)" 1 2))
+(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ ]+\\.exs?\\):\\([0-9]+\\)" 1 2))
 (add-to-list 'compilation-error-regexp-alist 'elixir)
 
 
