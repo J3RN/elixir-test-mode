@@ -1,4 +1,4 @@
-;;; elixir-test.el --- Emacs plugin to test Elixir code
+;;; elixir-test-mode.el --- Emacs plugin to test Elixir code
 
 ;; Copyright 2019 Jonathan Arnett
 
@@ -203,4 +203,4 @@ file, or the whole test suite, respectively."
   (elixir-test--run-test (vector elixir-test-base-cmd "--failed" nil)))
 
 (provide 'elixir-test)
-;;; elixir-test.el ends here
+;;; elixir-test-mode.el ends here
