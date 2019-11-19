@@ -24,13 +24,15 @@ For instance, my prefix is `C-c e`, and setting that prefix looks like this:
 
 Once you've done that, you have the following keybindings at your disposal:
 
-| Keybind      | Command                  |
-|--------------|--------------------------|
-| `<prefix> s` | `elixir-test-at-point`   |
-| `<prefix> f` | `elixir-test-file`       |
-| `<prefix> d` | `elixir-test-directory`  |
-| `<prefix> a` | `elixir-test-all`        |
-| `<prefix> l` | `elixir-test-rerun-last` |
+| Keybind      | Command                                                             |
+|--------------|---------------------------------------------------------------------|
+| `<prefix> s` | `elixir-test-at-point`                                              |
+| `<prefix> f` | `elixir-test-file`                                                  |
+| `<prefix> d` | `elixir-test-directory`                                             |
+| `<prefix> a` | `elixir-test-all`                                                   |
+| `<prefix> l` | `elixir-test-rerun-last`                                            |
+| `<prefix> u` | `elixir-test-up` (run tests at the next highest level; WIP)         |
+| `<prefix> .` | `elixir-test-failed` (rerun only tests taht failed in the last run) |
 
 ## TODO
 
