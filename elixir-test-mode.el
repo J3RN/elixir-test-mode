@@ -126,6 +126,12 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "Return the directory above DIR."
   (file-name-directory (directory-file-name dir)))
 
+(defun elixir-test--test-file-name (file-name)
+  "Guess the name of the test file for FILE-NAME."
+  (let* ((test-file-name (concat (file-name-sans-extension (file-name-nondirectory file-name)) "_test.exs"))
+	 (test-directory (replace-regexp-in-string "/lib/" "/test/" (file-name-directory file-name))))
+    (concat test-directory test-file-name)))
+
 (defun elixir-test--run-test (cmd)
   "Run the test specified by CMD.
 
@@ -147,10 +153,10 @@ file, or the whole test suite, respectively."
 			  (read-file-name "Path: " location)
 			location))))
 	 (test-cmd (vector base-cmd args location)))
-    (elixir-test--set-last-test default-directory test-cmd)
-    (compilation-start (elixir-test--format-command test-cmd)
-		       'elixir-test-output-mode
-		       'elixir-test-output--buffer-name)))
+	  (elixir-test--set-last-test default-directory test-cmd)
+	  (compilation-start (elixir-test--format-command test-cmd)
+			     'elixir-test-output-mode
+			     'elixir-test-output--buffer-name)))
 
 
 ;;; Public functions
@@ -162,9 +168,11 @@ file, or the whole test suite, respectively."
     (elixir-test--run-test (vector nil nil file-and-line))))
 
 (defun elixir-test-file ()
-  "Test the current file."
+  "Test the current file or the file associated with the current file."
   (interactive)
-  (elixir-test--run-test (vector nil nil buffer-file-name)))
+  (if (string-match-p "test\\.exs" buffer-file-name)
+      (elixir-test--run-test (vector nil nil buffer-file-name))
+    (elixir-test--run-test (vector nil nil (elixir-test--test-file-name buffer-file-name)))))
 
 (defun elixir-test-directory ()
   "Test all files in the current directory."
