@@ -55,6 +55,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
     (define-key map (kbd "l") #'elixir-test-rerun-last)
     (define-key map (kbd "u") #'elixir-test-up)
     (define-key map (kbd ".") #'elixir-test-failed)
+    (define-key map (kbd "t") #'elixir-test-toggle-implementation)
     map)
   "Keymap to be invoked post-prefix.")
 (fset 'elixir-test-command-map elixir-test-command-map)
@@ -126,11 +127,35 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "Return the directory above DIR."
   (file-name-directory (directory-file-name dir)))
 
+(defun elixir-test--test-file-p (file-name)
+  "Return whether FILE-NAME points to an Elixir test file."
+  (string-suffix-p "_test.exs" file-name))
+
+(defun elixir-test--file-name-base (file-name)
+  "Return FILE-NAME sans path, sans extension, and potentially sans `_test'.
+
+For example, given a file such as `/foo/bar/baz.ex', it will return `baz'.
+Given a file such as `foo/bar/baz_test.ex', it will likewise return `baz'."
+  (message file-name)
+  (let ((maybe-name-base (file-name-sans-extension (file-name-nondirectory file-name))))
+    (message maybe-name-base)
+    (if (string-suffix-p "_test" maybe-name-base)
+	(substring maybe-name-base 0 -5)
+      maybe-name-base)))
+
 (defun elixir-test--test-file-name (file-name)
   "Guess the name of the test file for FILE-NAME."
-  (let* ((test-file-name (concat (file-name-sans-extension (file-name-nondirectory file-name)) "_test.exs"))
+  (let* ((file-name-base (elixir-test--file-name-base file-name))
+	 (test-file-name (concat file-name-base "_test.exs"))
 	 (test-directory (replace-regexp-in-string "/lib/" "/test/" (file-name-directory file-name))))
     (concat test-directory test-file-name)))
+
+(defun elixir-test--implementation-file-name (file-name)
+  "Guess the name of the implementation file for FILE-NAME."
+  (let* ((file-name-base (elixir-test--file-name-base file-name))
+	 (impl-file-name (concat file-name-base ".ex"))
+	 (impl-directory (replace-regexp-in-string "/test/" "/lib/" (file-name-directory file-name))))
+    (concat impl-directory impl-file-name)))
 
 (defun elixir-test--run-test (cmd)
   "Run the test specified by CMD.
@@ -209,6 +234,13 @@ file, or the whole test suite, respectively."
   "Run only the tests that failed in the last run."
   (interactive)
   (elixir-test--run-test (vector elixir-test-base-cmd "--failed" nil)))
+
+(defun elixir-test-toggle-implementation ()
+  "Jump from an implementation file to a test file or vise versa."
+  (interactive)
+  (if (elixir-test--test-file-p buffer-file-name)
+      (find-file (elixir-test--implementation-file-name buffer-file-name))
+    (find-file (elixir-test--test-file-name buffer-file-name))))
 
 (provide 'elixir-test)
 ;;; elixir-test-mode.el ends here
