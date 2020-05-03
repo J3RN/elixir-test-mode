@@ -119,7 +119,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
   (file-name-base (directory-file-name root-directory)))
 
 (defun elixir-test-output--buffer-name (mode)
-  "Create the name for the elixir-test-output buffer."
+  "Create a unique name for the given MODE buffer."
   (concat "*" mode " " (elixir-test--project-name default-directory) "*"))
 
 (defun elixir-test--format-command (cmd)
@@ -234,7 +234,7 @@ file, or the whole test suite, respectively."
       (message "No test has been run in the project yet!"))))
 
 (defun elixir-test-failed ()
-  "Run only the tests that failed in the last run."
+  "Run only the failures of the last test run."
   (interactive)
   (elixir-test--run-test (vector elixir-test-base-cmd "--failed" nil)))
 
