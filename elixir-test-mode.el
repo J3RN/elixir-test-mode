@@ -79,6 +79,10 @@ If there is no umbrella project, the value of this variable is irrelevant."
 ;;;###autoload
 (add-hook 'elixir-mode-hook 'elixir-test-mode)
 
+(defun elixir-test-unload-function ()
+  "Unload function for Elixir Test."
+  (remove-hook 'elixir-mode-hook 'elixir-test-mode))
+
 
 ;;; elixir-test-output-mode definition and configuration
 ;;;###autoload
