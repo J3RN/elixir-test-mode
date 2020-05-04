@@ -82,12 +82,16 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 ;;; elixir-test-output-mode definition and configuration
 ;;;###autoload
-(defvar elixir-test-output-mode-map elixir-test-command-map
+(defvar elixir-test-output-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "a") #'elixir-test-all)
+    (define-key map (kbd "l") #'elixir-test-rerun-last)
+    (define-key map (kbd "u") #'elixir-test-up)
+    (define-key map (kbd ".") #'elixir-test-failed)
+    map)
   "A keymap for the elixir-test-output buffer.")
 
 (define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test")
-
-(derived-mode-set-keymap 'elixir-test-output-mode)
 
 (add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ ]+\\.\\(?:eex\\|exs?\\)\\):\\([0-9]+\\)" 1 2))
 (add-to-list 'compilation-error-regexp-alist 'elixir)
