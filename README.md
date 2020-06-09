@@ -1,6 +1,6 @@
 # elixir-test
 
-This package gives you a set of incredible handy functions to run Elixir tests:
+This package gives you a set of incredibly handy functions to run Elixir tests:
 
 - `elixir-test-at-point`
 - `elixir-test-file`
