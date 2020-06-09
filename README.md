@@ -31,8 +31,8 @@ Once you've done that, you have the following keybindings at your disposal:
 | `<prefix> d` | `elixir-test-directory`                                             |
 | `<prefix> a` | `elixir-test-all`                                                   |
 | `<prefix> l` | `elixir-test-rerun-last`                                            |
-| `<prefix> u` | `elixir-test-up` (run tests at the next highest level; WIP)         |
-| `<prefix> .` | `elixir-test-failed` (rerun only tests taht failed in the last run) |
+| `<prefix> u` | `elixir-test-up` (run tests at the next highest level)              |
+| `<prefix> .` | `elixir-test-failed` (rerun only tests that failed in the last run) |
 
 ## TODO
 
