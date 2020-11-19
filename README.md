@@ -34,6 +34,18 @@ Once you've done that, you have the following keybindings at your disposal:
 | `<prefix> u` | `elixir-test-up` (run tests at the next highest level)              |
 | `<prefix> .` | `elixir-test-failed` (rerun only tests that failed in the last run) |
 
+### Example configuration (using `use-package`)
+
+- Create a directory `packages` in your `.emacs.d` directory
+- Run `cd ~/.emacs.d/packages` and clone this package
+- Put the following into your `init.el` file
+
+``` elisp
+(use-package elixir-test
+  :load-path "packages/elixir-test"
+  :config (define-key elixir-test-mode-map (kbd "C-c e") 'elixir-test-command-map))
+```
+
 ## TODO
 
 - [ ] Have a feature you want to see? Open an issue! :smile:
