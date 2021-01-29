@@ -1,6 +1,12 @@
 ;;; elixir-test.el --- Emacs plugin to test Elixir code
 
-;; Copyright 2019 Jonathan Arnett
+;; Copyright 2019 Jonathan Arnett <jonathan.arnett@protonmail.com>
+
+;; Author: Jonathan Arnett <jonathan.arnett@protonmail.com>
+;; URL: https://github.com/J3RN/elixir-test-mode
+;; Keywords: languages, processes, tools
+;; Version: 1.0.0
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -18,7 +24,7 @@
 ;; along with this program. If not, see https://www.gnu.org/licenses.
 
 ;;; Commentary:
-
+;;
 ;; Provides a set of functions for testing Elixir code.  The functions
 ;; themselves are immediately available, but it is recommended to set
 ;; a prefix keyinding in order to take advantage of the keymap.
