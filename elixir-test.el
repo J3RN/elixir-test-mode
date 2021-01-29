@@ -71,7 +71,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 ;;;###autoload
 (define-minor-mode elixir-test-mode
-  "Minor mode to aid in testing Elixir code.
+  "Minor mode to provide shortcuts to test Elixir code.
 
 \\{elixir-test-mode-map}"
   :keymap elixir-test-mode-map)
