@@ -1,4 +1,4 @@
-;;; elixir-test-mode.el --- Emacs plugin to test Elixir code
+;;; elixir-test.el --- Emacs plugin to test Elixir code
 
 ;; Copyright 2019 Jonathan Arnett
 
@@ -250,4 +250,4 @@ file, or the whole test suite, respectively."
     (find-file (elixir-test--test-file-name buffer-file-name))))
 
 (provide 'elixir-test)
-;;; elixir-test-mode.el ends here
+;;; elixir-test.el ends here
