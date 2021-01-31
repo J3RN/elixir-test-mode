@@ -1,6 +1,6 @@
 ;;; elixir-test.el --- Easily run Elixir tests -*- lexical-binding: t -*-
 
-;; Copyright 2019 Jonathan Arnett <jonathan.arnett@protonmail.com>
+;; Copyright © 2019–2021 Jonathan Arnett <jonathan.arnett@protonmail.com>
 
 ;; Author: Jonathan Arnett <jonathan.arnett@protonmail.com>
 ;; URL: https://github.com/J3RN/elixir-test-mode
@@ -32,6 +32,11 @@
 ;; (define-key elixir-test-mode-map (kbd "C-c e") 'elixir-test-command-map)
 
 ;;; Code:
+
+(require 'compile)
+(require 'seq)
+
+(require 'inf-elixir nil t)
 
 
 ;;; Customization
@@ -73,7 +78,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "An empty keymap primarily for setting the prefix.")
 
 (defvar elixir-test-last-test-table (make-hash-table :test 'equal)
-  "A hash-table mapping projects to the last test run with an elixir-test-* function inside them.")
+  "A hash-table mapping projects to the last test run inside them.")
 
 ;;;###autoload
 (define-minor-mode elixir-test-mode
@@ -256,4 +261,5 @@ file, or the whole test suite, respectively."
     (find-file (elixir-test--test-file-name buffer-file-name))))
 
 (provide 'elixir-test)
+
 ;;; elixir-test.el ends here
