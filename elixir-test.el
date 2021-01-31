@@ -1,4 +1,4 @@
-;;; elixir-test.el --- Emacs plugin to test Elixir code
+;;; elixir-test.el --- Emacs plugin to test Elixir code -*- lexical-binding: t -*-
 
 ;; Copyright 2019 Jonathan Arnett <jonathan.arnett@protonmail.com>
 
