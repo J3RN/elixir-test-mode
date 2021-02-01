@@ -87,9 +87,6 @@ If there is no umbrella project, the value of this variable is irrelevant."
 \\{elixir-test-mode-map}"
   :keymap elixir-test-mode-map)
 
-;;;###autoload
-(add-hook 'elixir-mode-hook 'elixir-test-mode)
-
 
 ;;; elixir-test-output-mode definition and configuration
 ;;;###autoload
