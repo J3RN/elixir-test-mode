@@ -89,7 +89,6 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 
 ;;; elixir-test-output-mode definition and configuration
-;;;###autoload
 (defvar elixir-test-output-mode-map elixir-test-command-map
   "A keymap for the elixir-test-output buffer.")
 
