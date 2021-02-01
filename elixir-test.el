@@ -113,7 +113,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "Traverse upwards from START-DIR until highest mix.exs file is discovered."
   (when-let ((project-dir (locate-dominating-file start-dir "mix.exs")))
     (or (elixir-test--find-umbrella-root (elixir-test--up-directory project-dir))
-	project-dir)))
+        project-dir)))
 
 (defun elixir-test--find-project-root ()
   "Traverse upwards from current buffer until a mix.exs file is discovered."
@@ -150,21 +150,21 @@ Given a file such as `foo/bar/baz_test.ex', it will likewise return `baz'."
   (let ((maybe-name-base (file-name-sans-extension (file-name-nondirectory file-name))))
     (message maybe-name-base)
     (if (string-suffix-p "_test" maybe-name-base)
-	(substring maybe-name-base 0 -5)
+        (substring maybe-name-base 0 -5)
       maybe-name-base)))
 
 (defun elixir-test--test-file-name (file-name)
   "Guess the name of the test file for FILE-NAME."
   (let* ((file-name-base (elixir-test--file-name-base file-name))
-	 (test-file-name (concat file-name-base "_test.exs"))
-	 (test-directory (replace-regexp-in-string "/lib/" "/test/" (file-name-directory file-name))))
+         (test-file-name (concat file-name-base "_test.exs"))
+         (test-directory (replace-regexp-in-string "/lib/" "/test/" (file-name-directory file-name))))
     (concat test-directory test-file-name)))
 
 (defun elixir-test--implementation-file-name (file-name)
   "Guess the name of the implementation file for FILE-NAME."
   (let* ((file-name-base (elixir-test--file-name-base file-name))
-	 (impl-file-name (concat file-name-base ".ex"))
-	 (impl-directory (replace-regexp-in-string "/test/" "/lib/" (file-name-directory file-name))))
+         (impl-file-name (concat file-name-base ".ex"))
+         (impl-directory (replace-regexp-in-string "/test/" "/lib/" (file-name-directory file-name))))
     (concat impl-directory impl-file-name)))
 
 (defun elixir-test--run-test (cmd)
@@ -177,25 +177,25 @@ and LOCATION is either a file name and line number, just a file
 name, or nil, conveying the intent to run a single test, a test
 file, or the whole test suite, respectively."
   (let* ((default-directory (elixir-test--find-project-root))
-	 (base-cmd (or (elt cmd 0) elixir-test-base-cmd))
-	 (args (if current-prefix-arg
-		   (read-from-minibuffer "Args: " (elt cmd 1) nil nil 'elixir-test-args)
-		 (elt cmd 1)))
-	 (location (elt cmd 2))
-	 (location (when location
-		     (file-relative-name
-		      (if current-prefix-arg
-			  (read-file-name "Path: " location)
-			location))))
-	 (repl (if (and current-prefix-arg (fboundp 'run-elixir))
-		   (y-or-n-p "Run interactively? ")))
-	 (test-cmd (vector base-cmd args location)))
+         (base-cmd (or (elt cmd 0) elixir-test-base-cmd))
+         (args (if current-prefix-arg
+                   (read-from-minibuffer "Args: " (elt cmd 1) nil nil 'elixir-test-args)
+                 (elt cmd 1)))
+         (location (elt cmd 2))
+         (location (when location
+                     (file-relative-name
+                      (if current-prefix-arg
+                          (read-file-name "Path: " location)
+                        location))))
+         (repl (if (and current-prefix-arg (fboundp 'run-elixir))
+                   (y-or-n-p "Run interactively? ")))
+         (test-cmd (vector base-cmd args location)))
     (elixir-test--set-last-test default-directory test-cmd)
     (if repl
-	(run-elixir (concat "iex -S " (elixir-test--format-command test-cmd)))
+        (run-elixir (concat "iex -S " (elixir-test--format-command test-cmd)))
       (compilation-start (elixir-test--format-command test-cmd)
-			 'elixir-test-output-mode
-			 'elixir-test-output--buffer-name))))
+                         'elixir-test-output-mode
+                         'elixir-test-output--buffer-name))))
 
 
 ;;; Public functions
@@ -203,7 +203,7 @@ file, or the whole test suite, respectively."
   "Run the test nearest to the point."
   (interactive)
   (let* ((line (line-number-at-pos (point)))
-	 (file-and-line (format "%s:%s" buffer-file-name line)))
+         (file-and-line (format "%s:%s" buffer-file-name line)))
     (elixir-test--run-test (vector nil nil file-and-line))))
 
 (defun elixir-test-file ()
@@ -227,21 +227,21 @@ file, or the whole test suite, respectively."
   "Rerun whatever test was run last."
   (interactive)
   (let* ((root (elixir-test--find-project-root))
-	 (last-cmd (elixir-test--get-last-test root)))
+         (last-cmd (elixir-test--get-last-test root)))
     (if last-cmd
-	(elixir-test--run-test last-cmd)
+        (elixir-test--run-test last-cmd)
       (message "No test has been run in the project yet!"))))
 
 (defun elixir-test-up ()
   "Rerun the last test command, but in the next highest directory from the last run."
   (interactive)
   (let* ((root (elixir-test--find-project-root))
-	 (last-cmd (elixir-test--get-last-test root)))
+         (last-cmd (elixir-test--get-last-test root)))
     (if last-cmd
-	(seq-let [base-cmd args last-file] last-cmd
-	  (let ((new-file (when last-file
-			    (elixir-test--up-directory last-file))))
-	    (elixir-test--run-test (vector base-cmd args new-file))))
+        (seq-let [base-cmd args last-file] last-cmd
+          (let ((new-file (when last-file
+                            (elixir-test--up-directory last-file))))
+            (elixir-test--run-test (vector base-cmd args new-file))))
       (message "No test has been run in the project yet!"))))
 
 (defun elixir-test-failed ()
