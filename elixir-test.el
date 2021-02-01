@@ -146,9 +146,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 For example, given a file such as `/foo/bar/baz.ex', it will return `baz'.
 Given a file such as `foo/bar/baz_test.ex', it will likewise return `baz'."
-  (message file-name)
   (let ((maybe-name-base (file-name-sans-extension (file-name-nondirectory file-name))))
-    (message maybe-name-base)
     (if (string-suffix-p "_test" maybe-name-base)
         (substring maybe-name-base 0 -5)
       maybe-name-base)))
