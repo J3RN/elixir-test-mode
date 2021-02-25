@@ -185,15 +185,15 @@ file, or the whole test suite, respectively."
                       (if current-prefix-arg
                           (read-file-name "Path: " location)
                         location))))
-         (repl (if (and current-prefix-arg (fboundp 'run-elixir))
+         (repl (if (and current-prefix-arg (fboundp #'inf-elixir-run-cmd))
                    (y-or-n-p "Run interactively? ")))
          (test-cmd (vector base-cmd args location)))
     (elixir-test--set-last-test default-directory test-cmd)
     (if repl
-        (run-elixir (concat "iex -S " (elixir-test--format-command test-cmd)))
+        (inf-elixir-run-cmd (concat "iex -S " (elixir-test--format-command test-cmd)))
       (compilation-start (elixir-test--format-command test-cmd)
-                         'elixir-test-output-mode
-                         'elixir-test-output--buffer-name))))
+                         #'elixir-test-output-mode
+                         #'elixir-test-output--buffer-name))))
 
 
 ;;; Public functions
