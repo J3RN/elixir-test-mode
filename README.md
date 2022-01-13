@@ -43,7 +43,7 @@ Once you've done that, you have the following keybindings at your disposal:
 ``` elisp
 (use-package elixir-test
   :load-path "packages/elixir-test"
-  :config (define-key elixir-test-mode-map (kbd "C-c e") 'elixir-test-command-map))
+  :bind (:map elixir-test-mode-map ("C-c e" . elixir-test-command-map)))
 ```
 
 ## TODO
