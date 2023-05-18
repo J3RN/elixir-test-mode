@@ -137,6 +137,12 @@ If there is no umbrella project, the value of this variable is irrelevant."
   "Return the directory above DIR."
   (file-name-directory (directory-file-name dir)))
 
+(defun elixir-test--level-up (last-file)
+  "Return a path corresponding to the 'level up' for LAST-FILE."
+  (if-let ((re-start (string-match ":[0-9]+$" last-file)))
+      (substring last-file 0 re-start)
+    (elixir-test--up-directory last-file)))
+
 (defun elixir-test--test-file-p (file-name)
   "Return whether FILE-NAME points to an Elixir test file."
   (string-suffix-p "_test.exs" file-name))
@@ -233,14 +239,19 @@ file, or the whole test suite, respectively."
       (message "No test has been run in the project yet!"))))
 
 (defun elixir-test-up ()
-  "Rerun the last test command, but in the next highest directory from the last run."
+  "Rerun the last test command, but at the next level up from the last run.
+
+If the previous run was on a line, the next level up is the file.
+If the previous run was for a file, the next level up is its directory.
+If the previous run was for a directory, the next level up is its parent
+directory."
   (interactive)
   (let* ((root (elixir-test--find-project-root))
          (last-cmd (elixir-test--get-last-test root)))
     (if last-cmd
         (seq-let [base-cmd args last-file] last-cmd
           (let ((new-file (when last-file
-                            (elixir-test--up-directory last-file))))
+                            (elixir-test--level-up last-file))))
             (elixir-test--run-test (vector base-cmd args new-file))))
       (message "No test has been run in the project yet!"))))
 
