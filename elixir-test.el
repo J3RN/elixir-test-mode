@@ -89,15 +89,16 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 
 ;;; elixir-test-output-mode definition and configuration
+(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ ]+\\.\\(?:[lh]?eex\\|exs?\\)\\):\\([0-9]+\\)" 1 2))
+(add-to-list 'compilation-error-regexp-alist 'elixir)
+
 (defvar elixir-test-output-mode-map elixir-test-command-map
   "A keymap for the elixir-test-output buffer.")
 
-(define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test")
+(define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test"
+  (setq-local compilation-error-regexp-alist '(elixir)))
 
 (derived-mode-set-keymap 'elixir-test-output-mode)
-
-(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ ]+\\.\\(?:[lh]?eex\\|exs?\\)\\):\\([0-9]+\\)" 1 2))
-(add-to-list 'compilation-error-regexp-alist 'elixir)
 
 
 ;;; Private functions
