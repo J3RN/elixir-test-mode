@@ -98,8 +98,6 @@ If there is no umbrella project, the value of this variable is irrelevant."
 (define-derived-mode elixir-test-output-mode compilation-mode "Elixir Test"
   (setq-local compilation-error-regexp-alist '(elixir)))
 
-(derived-mode-set-keymap 'elixir-test-output-mode)
-
 
 ;;; Private functions
 (defun elixir-test--get-last-test (dir)
