@@ -89,7 +89,7 @@ If there is no umbrella project, the value of this variable is irrelevant."
 
 
 ;;; elixir-test-output-mode definition and configuration
-(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ ]+\\.\\(?:[lh]?eex\\|exs?\\)\\):\\([0-9]+\\)" 1 2))
+(add-to-list 'compilation-error-regexp-alist-alist '(elixir "\\([^ \n]+\\.\\(?:[lh]?eex\\|exs?\\)\\):\\([0-9]+\\)" 1 2))
 (add-to-list 'compilation-error-regexp-alist 'elixir)
 
 (defvar elixir-test-output-mode-map elixir-test-command-map
